@@ -1,57 +1,47 @@
-// ==UserScript==
-// @name         Universal Timer Bypass
-// @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  Skip countdowns and reveal direct download links
-// @author       XLS
-// @match        *://*/*
-// @grant        none
-// @run-at       document-idle
-// ==/UserScript==
+! Title: XLS Timer Bypass & Link Forcer
+! Description: Aggressively neutralizes countdown timers and forces hidden download links to appear.
+! Expires: 5 days
+! Last modified: 2026-07-15
+! Homepage: https://github.com/ydwx/home
+! License: https://github.com/ydwx/home/blob/main/LICENSE
+!
+! This filter uses advanced uBlock Origin scriptlet injection
+! to sabotage JavaScript timers and remove CSS disguises from download buttons.
+! Brave supports this syntax natively when loaded as a custom filter list.
 
-(function() {
-    'use strict';
-    console.log('Scanner active...');
+! ====== Timer Annihilation ======
+! Disable setTimeout and setInterval entirely if their code contains any of these keywords.
+! This prevents the countdown from ever starting, so the download link is immediately available.
+*##+js(no-setTimeout-if, /countdown|timer|wait|delay|redirect|cooldown|skip|adblock|throttle/)
+*##+js(no-setInterval-if, /countdown|timer|wait|delay|redirect|cooldown|skip|adblock|throttle/)
 
-    // الهجوم الأول: البحث عن العداد نفسه وتخطيه للأمام
-    setInterval(() => {
-        // ابحث عن أي عنصر يحوي أرقاماً ويبدو كأنه عداد
-        const timers = document.querySelectorAll('[id*="timer"], [class*="timer"], [id*="countdown"], [class*="countdown"]');
-        timers.forEach(el => {
-            // إذا كان العداد يظهر (غير مخفي)
-            if (el.offsetParent !== null) {
-                const num = parseInt(el.innerText);
-                // إذا كان رقماً، فهذا هو الهدف
-                if (!isNaN(num)) {
-                    console.log('Timer found, skipping...');
-                    // تخمين الذهاب مباشرة إلى 0
-                    el.innerText = '0';
-                    // الضغط على أي زر تحميل قريب
-                    const btn = document.querySelector('a[href*="download"], button, .btn, [class*="download"]');
-                    if (btn) {
-                        btn.click();
-                    }
-                }
-            }
-        });
-    }, 1000); // يتحقق كل ثانية
+! ====== Link & Button Revealer ======
+! Remove the 'display' attribute from potential download links and buttons,
+! forcing them to become visible even if they were hidden by CSS.
+*##+js(ra, a[href*="download"], style, display)
+*##+js(ra, a[href*="file"], style, display)
+*##+js(ra, a[href*="get"], style, display)
+*##+js(ra, a[href*="link"], style, display)
+*##+js(ra, a[href*="direct"], style, display)
+*##+js(ra, a[href*="dl"], style, display)
+*##+js(ra, button, style, display)
 
-    // الهجوم الثاني: إجبار الروابط المخفية على الظهور مباشرة
-    const reveal = () => {
-        // قتل كل الروابط المخفية وجعلها مرئية
-        const links = document.querySelectorAll('a[href*="download"], a[href*="file"], a[href*="get"], a[href*="link"]');
-        links.forEach(link => {
-            if (link.offsetParent === null) {
-                link.style.display = 'block';
-                link.style.visibility = 'visible';
-                link.style.opacity = '1';
-                link.style.pointerEvents = 'auto';
-                link.style.zIndex = '9999';
-                console.log('Link revealed: ' + link.href);
-            }
-        });
-    };
-    setTimeout(reveal, 500);
-    setInterval(reveal, 2000);
+! Remove HTML 'hidden' and 'aria-hidden' attributes that might hide links.
+*##+js(ra, a, hidden)
+*##+js(ra, a, aria-hidden)
+*##+js(ra, button, hidden)
+*##+js(ra, button, aria-hidden)
 
-})();
+! Remove classes commonly used to hide elements during a countdown.
+*##+js(ra, .hidden, style, display)
+*##+js(ra, .invisible, style, display)
+*##+js(ra, [class*="hide"], style, display)
+*##+js(ra, [class*="d-none"], style, display)
+
+! ====== Generic Overlay Killer ======
+! Many sites place a transparent overlay that blocks clicks.
+! This rule removes any div that has a high z-index and is likely a blocker.
+*##div[style*="z-index: 99"]:has(~ a[href*="download"])
+*##div[style*="z-index: 100"]:has(~ a[href*="download"])
+*##div[class*="overlay"]:has(~ a[href*="download"])
+*##div[id*="overlay"]:has(~ a[href*="download"])
