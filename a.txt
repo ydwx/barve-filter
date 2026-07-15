@@ -1,7 +1,0 @@
-##[id*="countdown"]:has(> *), [class*="countdown"]:has(> *), [id*="timer"]:has(> *), [class*="timer"]:has(> *)
-##span[id*="countdown"], span[class*="countdown"], span[id*="timer"], span[class*="timer"]
-##div[id*="countdown"]:not(:empty), div[class*="countdown"]:not(:empty), div[id*="timer"]:not(:empty), div[class*="timer"]:not(:empty)
-##div:has(> [id*="countdown"]), div:has(> [class*="countdown"]), div:has(> [id*="timer"]), div:has(> [class*="timer"])
-##*[id*="countdown"]:upward(div), *[class*="countdown"]:upward(div), *[id*="timer"]:upward(div), *[class*="timer"]:upward(div)
-##[data-countdown], [data-timer], [data-wait], [data-time], [data-delay]
-##[data-countdown]:upward(div), [data-timer]:upward(div), [data-wait]:upward(div)
